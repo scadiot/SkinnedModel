@@ -69,8 +69,8 @@ namespace DopaEngine
 
         public void Initialize()
         {
-            AssimpContext importer = new AssimpContext();
-            Scene aScene = importer.ImportFile(FilePath, PostProcessPreset.TargetRealTimeMaximumQuality);
+            var importer = new AssimpContext();
+            var aScene = importer.ImportFile(FilePath, PostProcessPreset.TargetRealTimeMaximumQuality);
             Meshes = new List<Mesh>();
 
             foreach (var aMesh in aScene.Meshes)
@@ -78,7 +78,7 @@ namespace DopaEngine
                 var verticesResult = new List<MeshSkinnedVerticeInfo>();
                 var indicesResult = new List<int>();
 
-                Mesh mesh = new Mesh();
+                var mesh = new Mesh();
                 mesh.Bones = new List<Bone>();
 
                 mesh.Name = aMesh.Name;
@@ -99,31 +99,30 @@ namespace DopaEngine
                 }
 
                 var c = aScene.Materials[aMesh.MaterialIndex].ColorDiffuse;
-                Color color = new Color(new Vector4(c.R, c.G, c.B, c.A));
+                var color = new Color(new Vector4(c.R, c.G, c.B, c.A));
 
                 for (int i = 0; i < aMesh.FaceCount; i++)
                 {
                     int verticeIndice1 = aMesh.Faces[i].Indices[0];
-                    Vector3 verticePosition1 = FromVector(aMesh.Vertices[verticeIndice1]);
+                    Vector3 verticePosition1 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice1]);
 
                     int verticeIndice2 = aMesh.Faces[i].Indices[1];
-                    Vector3 verticePosition2 = FromVector(aMesh.Vertices[verticeIndice2]);
+                    Vector3 verticePosition2 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice2]);
 
                     int verticeIndice3 = aMesh.Faces[i].Indices[2];
-                    Vector3 verticePosition3 = FromVector(aMesh.Vertices[verticeIndice3]);
+                    Vector3 verticePosition3 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice3]);
 
                     var direction = Vector3.Cross(verticePosition2 - verticePosition1, verticePosition3 - verticePosition1);
                     var normal = Vector3.Normalize(direction);
 
-                    Vector3 uv = FromVector(aMesh.TextureCoordinateChannels[0][verticeIndice1]);
+                    var uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice1]);
                     var verticeUv1 = new Vector2(uv.X, uv.Y);
 
-                    uv = FromVector(aMesh.TextureCoordinateChannels[0][verticeIndice2]);
+                    uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice2]);
                     var verticeUv2 = new Vector2(uv.X, uv.Y);
 
-                    uv = FromVector(aMesh.TextureCoordinateChannels[0][verticeIndice3]);
+                    uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice3]);
                     var verticeUv3 = new Vector2(uv.X, uv.Y);
-
 
                     var vertice1 = new MeshSkinnedVerticeInfo()
                     {
@@ -182,7 +181,7 @@ namespace DopaEngine
 
         Bone GetBone(Mesh mesh, Assimp.Bone aBone)
         {
-            Bone bone = mesh.Bones.FirstOrDefault(b => b.Name == aBone.Name);
+            var bone = mesh.Bones.FirstOrDefault(b => b.Name == aBone.Name);
             if(bone == null)
             {
                 var offsetMatrix = aBone.OffsetMatrix;
@@ -191,8 +190,8 @@ namespace DopaEngine
                 bone = new Bone();
                 bone.Name = aBone.Name;
                 bone.Index = mesh.Bones.Count;
-                bone.Offset = MatrixAssimpToXna(offsetMatrix);
-                bone.OffsetInverse = Matrix.Invert(MatrixAssimpToXna(offsetMatrix));
+                bone.Offset = AssimpHelper.MatrixAssimpToXna(offsetMatrix);
+                bone.OffsetInverse = Matrix.Invert(AssimpHelper.MatrixAssimpToXna(offsetMatrix));
                 mesh.Bones.Add(bone);
             }
             return bone;
@@ -200,7 +199,7 @@ namespace DopaEngine
 
         Vector4 GetBlendWeight(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
         {
-            float[] blendWeight = new float[4];
+            var blendWeight = new float[4];
             for (int j = 0; j < 4; j++)
             {
                 blendWeight[j] = 0;
@@ -223,7 +222,7 @@ namespace DopaEngine
 
         Vector4 GetBlendIndices(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
         {
-            float[] blendIndices = new float[4];
+            var blendIndices = new float[4];
             for (int j = 0; j < 4; j++)
             {
                 blendIndices[j] = 0;
@@ -242,37 +241,6 @@ namespace DopaEngine
             }
 
             return new Vector4(blendIndices[0], blendIndices[1], blendIndices[2], blendIndices[3]);
-        }
-
-        private Vector3 FromVector(Vector3D vec)
-        {
-            Vector3 v;
-            v.X = vec.X;
-            v.Y = vec.Y;
-            v.Z = vec.Z;
-            return v;
-        }
-
-        static Matrix MatrixAssimpToXna(Assimp.Matrix4x4 matrix)
-        {
-            return new Matrix(
-                matrix.A1,
-                matrix.A2,
-                matrix.A3,
-                matrix.A4,
-                matrix.B1,
-                matrix.B2,
-                matrix.B3,
-                matrix.B4,
-                matrix.C1,
-                matrix.C2,
-                matrix.C3,
-                matrix.C4,
-                matrix.D1,
-                matrix.D2,
-                matrix.D3,
-                matrix.D4
-                );
         }
     }
 }

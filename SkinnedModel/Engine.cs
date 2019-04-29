@@ -33,6 +33,8 @@ namespace DopaEngine
         Matrix RifleTransformation;
 
         Texture2D Maintexture { get; set; }
+        Texture2D Mp5Texture { get; set; }
+
         public Engine()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -48,7 +50,8 @@ namespace DopaEngine
 
         protected override void Initialize()
         {
-            Maintexture = Content.Load<Texture2D>("Soldier_head_diffuse");// Soldier_Body_diffuse");
+            Maintexture = Content.Load<Texture2D>("Soldier_head_diffuse");
+            Mp5Texture = Content.Load<Texture2D>("hk_mp5n");
 
             CharacterMesh = new SkinnedModel(GraphicsDevice);
             CharacterMesh.FilePath = @"Content\swat.dae";
@@ -94,8 +97,8 @@ namespace DopaEngine
             MainEffect = this.Content.Load<Effect>("BlocEffect");
             SkinnedEffect = this.Content.Load<Effect>("SkinnedEffect");
 
-            Vector3 Position = new Vector3(250, 100, 0);
-            Vector3 Direction = new Vector3(0, 100, 0);
+            var Position = new Vector3(250, 100, 0);
+            var Direction = new Vector3(0, 100, 0);
             ViewMatrix = Matrix.CreateLookAt(Position, Direction, Vector3.Up);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(60), GraphicsDevice.DisplayMode.AspectRatio, 0.1f, 5000f);
 
@@ -104,15 +107,14 @@ namespace DopaEngine
 
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+
         }
 
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -172,10 +174,7 @@ namespace DopaEngine
                 }
             }
             HeadNodeInstance.AdditionalTransform = Matrix.CreateRotationY(headYRotation);
-            // TODO: Add your update logic here
-            ModelInstance.Transformation = Matrix.CreateRotationY(2.5f);// (float)gameTime.TotalGameTime.TotalSeconds);
-
-            
+            ModelInstance.Transformation = Matrix.CreateRotationY(2.5f);
 
             ModelInstance.UpdateNodes(gameTime);
             ModelInstance.UpdateBones(gameTime);
@@ -184,10 +183,6 @@ namespace DopaEngine
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -198,7 +193,7 @@ namespace DopaEngine
             DrawSkinnedModel(ModelInstance, gameTime);
 
 
-            MainEffect.Parameters["Texture1"].SetValue(Maintexture);
+            MainEffect.Parameters["Texture1"].SetValue(Mp5Texture);
             modelRifle.Draw(gameTime, RifleTransformation);
 
             base.Draw(gameTime);

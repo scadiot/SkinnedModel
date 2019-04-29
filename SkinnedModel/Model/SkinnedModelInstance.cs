@@ -74,10 +74,16 @@ namespace DopaEngine
 
         public Matrix GetNodeTransform(SkinnedModelAnimation.Node node, GameTime gt)
         {
+            if (!node.IsAnimate && node.Parent != null)
+            {
+                return node.Transformation;
+            }
+
             Matrix transform = Matrix.Identity;
             if (node.Scales.Count > 0)
             {
-                transform *= Matrix.CreateScale(node.Scales[0]);
+                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * 30) % node.Scales.Count;
+                transform *= Matrix.CreateScale(node.Scales[frameIndex]);
             }
             if (node.Rotations.Count > 0)
             {
@@ -86,8 +92,10 @@ namespace DopaEngine
             }
             if (node.Positions.Count > 0)
             {
-                transform *= Matrix.CreateTranslation(node.Positions[0]);
+                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * 30) % node.Positions.Count;
+                transform *= Matrix.CreateTranslation(node.Positions[frameIndex]);
             }
+
             return transform;
         }
 

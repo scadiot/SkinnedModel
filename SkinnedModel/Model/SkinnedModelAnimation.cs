@@ -12,40 +12,32 @@ namespace DopaEngine
         public class Node
         {
             public string Name { get; set; }
-            public int Index { get; set; }
             public Matrix Transformation { get; set; }
             public Node Parent { get; set; }
             public List<Node> Children { get; set; }
             public List<Vector3> Positions { get; set; }
             public List<Vector3> Scales { get; set; }
             public List<Quaternion> Rotations { get; set; }
+            public bool IsAnimate { get; set; }
         }
 
         public string FilePath { get; set; }
         public List<Node> Nodes { get; set; }
-        public Node RootNode;
-        public Dictionary<string, int> NodeIndexByName { get; set; }
+        public Node RootNode { get; set; }
 
         public void Load()
         {
             Nodes = new List<Node>();
 
-            Assimp.AssimpContext importer = new Assimp.AssimpContext();
-            Assimp.Scene scene = importer.ImportFile(FilePath, Assimp.PostProcessPreset.TargetRealTimeMaximumQuality);
+            var importer = new Assimp.AssimpContext();
+            var aScene = importer.ImportFile(FilePath, Assimp.PostProcessPreset.TargetRealTimeMaximumQuality);
 
-            RootNode = LoadNode(scene, scene.RootNode, null);
-
-            NodeIndexByName = new Dictionary<string, int>();
-            for (int i = 0;i < Nodes.Count;i++)
-            {
-                Nodes[i].Index = i;
-                NodeIndexByName.Add(Nodes[i].Name, i);
-            }
+            RootNode = LoadNode(aScene, aScene.RootNode, null);
         }
 
         public Node LoadNode(Assimp.Scene aScene, Assimp.Node aNode, Node parent)
         {
-            Node node = new Node()
+            var node = new Node()
             {
                 Parent = parent,
                 Children = new List<Node>(),
@@ -57,8 +49,10 @@ namespace DopaEngine
 
             var animationChanel = aScene.Animations[0].NodeAnimationChannels.Where(n => n.NodeName == node.Name).FirstOrDefault();
 
-            if(animationChanel != null)
+            if (animationChanel != null)
             {
+                node.IsAnimate = true;
+
                 foreach (var aScale in animationChanel.ScalingKeys)
                 {
                     var scale = new Vector3(aScale.Value.X, aScale.Value.Y, aScale.Value.Z);
@@ -79,7 +73,8 @@ namespace DopaEngine
             }
             else
             {
-                node.Transformation = Matrix.Identity;
+                node.IsAnimate = false;
+                node.Transformation = Matrix.Transpose(AssimpHelper.MatrixAssimpToXna(aNode.Transform));
             }
 
             foreach (var child in aNode.Children)
@@ -88,28 +83,6 @@ namespace DopaEngine
             }
             Nodes.Add(node);
             return node;
-        }
-
-        static Matrix MatrixAssimpToXna(Assimp.Matrix4x4 matrix)
-        {
-            return new Matrix(
-                matrix.A1,
-                matrix.A2,
-                matrix.A3,
-                matrix.A4,
-                matrix.B1,
-                matrix.B2,
-                matrix.B3,
-                matrix.B4,
-                matrix.C1,
-                matrix.C2,
-                matrix.C3,
-                matrix.C4,
-                matrix.D1,
-                matrix.D2,
-                matrix.D3,
-                matrix.D4
-                );
         }
     }
 }

@@ -44,7 +44,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Engine.cs" />
-    <Compile Include="Model\Model.cs" />
+    <Compile Include="Model\AssimpHelper.cs" />
+    <Compile Include="Model\BasicModel.cs" />
     <Compile Include="Model\SkinnedModelAnimation.cs" />
     <Compile Include="Model\SkinnedModel.cs" />
     <Compile Include="Model\SkinnedModelInstance.cs" />
