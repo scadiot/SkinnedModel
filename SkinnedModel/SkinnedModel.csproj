@@ -9,8 +9,8 @@
     <ProjectGuid>{9C8659B3-3F2B-449B-B4AE-84F201CC91AD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ModelViewer</RootNamespace>
-    <AssemblyName>ModelViewer</AssemblyName>
+    <RootNamespace>SkinnedModel</RootNamespace>
+    <AssemblyName>SkinnedModel</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
