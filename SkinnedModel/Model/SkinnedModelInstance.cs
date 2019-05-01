@@ -10,6 +10,9 @@ namespace DopaEngine
 {
     public class SkinnedModelInstance
     {
+        public const uint MaxBones = 50;
+        public const uint FramePerSecond = 30;
+
         public SkinnedModel Mesh { get; set; }
         public Matrix Transformation { get; set; }
         public SkinnedModelAnimation Animation { get; set; }
@@ -62,7 +65,7 @@ namespace DopaEngine
                 MeshInstance meshInstance = new MeshInstance();
                 meshInstance.Mesh = skinnedMesh;
                 meshInstance.NodeInstanceToBoneIndex = new List<NodeInstanceToBone>();
-                meshInstance.BonesOffsets = new Matrix[63];
+                meshInstance.BonesOffsets = new Matrix[MaxBones];
                 for (int i = 0; i < meshInstance.BonesOffsets.Length; i++)
                 {
                     meshInstance.BonesOffsets[i] = Matrix.Identity;
@@ -80,19 +83,19 @@ namespace DopaEngine
             }
 
             Matrix transform = Matrix.Identity;
-            if (node.Scales.Count > 0)
+            if (node.Scales.Any())
             {
-                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * 30) % node.Scales.Count;
+                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * FramePerSecond) % node.Scales.Count;
                 transform *= Matrix.CreateScale(node.Scales[frameIndex]);
             }
-            if (node.Rotations.Count > 0)
+            if (node.Scales.Any())
             {
-                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * 30) % node.Rotations.Count;
+                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * FramePerSecond) % node.Rotations.Count;
                 transform *= Matrix.CreateFromQuaternion(node.Rotations[frameIndex]);
             }
-            if (node.Positions.Count > 0)
+            if (node.Scales.Any())
             {
-                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * 30) % node.Positions.Count;
+                int frameIndex = (int)(gt.TotalGameTime.TotalSeconds * FramePerSecond) % node.Positions.Count;
                 transform *= Matrix.CreateTranslation(node.Positions[frameIndex]);
             }
 

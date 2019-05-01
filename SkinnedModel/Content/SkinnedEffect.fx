@@ -12,15 +12,15 @@ matrix WorldViewProjection;
 float3 CameraPos;
 Texture2D Texture1;
 float3 SunOrientation;
-float4x4 gBonesOffsets[63];
+float4x4 gBonesOffsets[50];
 
 sampler TextureSampler1 = 
 sampler_state
 {
     Texture = <Texture1>;
-    MipFilter = POINT;
-    MinFilter = POINT;
-    MagFilter = POINT;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
 };
 
 struct VertexShaderInput
@@ -64,7 +64,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 	
 	output.Position = mul(skinnedPosition, WorldViewProjection);
-	output.Normal = mul(input.Normal, World);
+	output.Normal = mul(input.Normal, World).xyz;
 	output.Uv = input.Uv;
 	output.Color = input.Color;
 
@@ -74,7 +74,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
 	float cosTheta = clamp(dot( input.Normal, SunOrientation) + 1, 0, 1);
-float4 textureColor = tex2D(TextureSampler1, input.Uv);// input.Color * cosTheta;
+	float4 textureColor = tex2D(TextureSampler1, input.Uv);// input.Color * cosTheta;
 	textureColor.a = 1;
 	return textureColor;
 }

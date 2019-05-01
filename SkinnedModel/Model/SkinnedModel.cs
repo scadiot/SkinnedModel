@@ -172,7 +172,7 @@ namespace DopaEngine
                 mesh.IndexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), indicesResult.Count, BufferUsage.WriteOnly);
                 mesh.IndexBuffer.SetData(indicesResult.ToArray());
 
-                mesh.FaceCount = indicesResult.Count / 3;
+                mesh.FaceCount = aMesh.FaceCount;
 
                 Meshes.Add(mesh);
             }
@@ -199,8 +199,10 @@ namespace DopaEngine
 
         Vector4 GetBlendWeight(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
         {
-            var blendWeight = new float[4];
-            for (int j = 0; j < 4; j++)
+            const uint BlendCount = 4;
+
+            var blendWeight = new float[BlendCount];
+            for (int j = 0; j < BlendCount; j++)
             {
                 blendWeight[j] = 0;
             }
@@ -222,8 +224,10 @@ namespace DopaEngine
 
         Vector4 GetBlendIndices(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
         {
-            var blendIndices = new float[4];
-            for (int j = 0; j < 4; j++)
+            const uint BlendCount = 4;
+
+            var blendIndices = new float[BlendCount];
+            for (int j = 0; j < BlendCount; j++)
             {
                 blendIndices[j] = 0;
             }

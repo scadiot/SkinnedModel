@@ -50,34 +50,24 @@ namespace DopaEngine
 
         protected override void Initialize()
         {
-            Maintexture = Content.Load<Texture2D>("Soldier_head_diffuse");
+            Maintexture = Content.Load<Texture2D>("swat");
             Mp5Texture = Content.Load<Texture2D>("hk_mp5n");
 
             CharacterMesh = new SkinnedModel(GraphicsDevice);
-            CharacterMesh.FilePath = @"Content\swat.dae";
+            CharacterMesh.FilePath = @"Content\Soldier.fbx";
             CharacterMesh.Initialize();
-            foreach(var mesh in CharacterMesh.Meshes)
-            {
-                if(mesh.TextureFilePath.Contains("Body"))
-                {
-                    mesh.Texture = Content.Load<Texture2D>("Soldier_Body_diffuse");
-                }
-                else
-                {
-                    mesh.Texture = Content.Load<Texture2D>("Soldier_head_diffuse");
-                }
-            }
+            CharacterMesh.Meshes[0].Texture = Content.Load<Texture2D>("swat");
 
             AnimationIdle = new SkinnedModelAnimation();
             AnimationIdle.FilePath = @"Content\Rifle Idle.dae";
             AnimationIdle.Load();
 
             AnimationRunning = new SkinnedModelAnimation();
-            AnimationRunning.FilePath = @"Content\Running.dae";
+            AnimationRunning.FilePath = @"Content\Rifle Run.dae";
             AnimationRunning.Load();
 
             AnimationWalk = new SkinnedModelAnimation();
-            AnimationWalk.FilePath = @"Content\Walking.dae";
+            AnimationWalk.FilePath = @"Content\Rifle Walking.dae";
             AnimationWalk.Load();
             
 
@@ -91,14 +81,14 @@ namespace DopaEngine
             ModelInstance.Initialize();
             ModelInstance.SetAnimation(AnimationIdle);
 
-            HeadNodeInstance = ModelInstance.GetNodeInstance("swat_Head");
-            HandNodeInstance = ModelInstance.GetNodeInstance("swat_RightHand");
+            HeadNodeInstance = ModelInstance.GetNodeInstance("soldier_Head");
+            HandNodeInstance = ModelInstance.GetNodeInstance("soldier_RightHand");
 
             MainEffect = this.Content.Load<Effect>("BlocEffect");
             SkinnedEffect = this.Content.Load<Effect>("SkinnedEffect");
 
-            var Position = new Vector3(250, 100, 0);
-            var Direction = new Vector3(0, 100, 0);
+            var Position = new Vector3(500, 200, 0);
+            var Direction = new Vector3(0, 200, 0);
             ViewMatrix = Matrix.CreateLookAt(Position, Direction, Vector3.Up);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(60), GraphicsDevice.DisplayMode.AspectRatio, 0.1f, 5000f);
 
@@ -125,20 +115,20 @@ namespace DopaEngine
             if (Keyboard.GetState().IsKeyDown(Keys.D1) && ModelInstance.Animation != AnimationIdle)
             {
                 ModelInstance.SetAnimation(AnimationIdle, gameTime);
-                HeadNodeInstance = ModelInstance.GetNodeInstance("swat_Head");
-                HandNodeInstance = ModelInstance.GetNodeInstance("swat_RightHand");
+                HeadNodeInstance = ModelInstance.GetNodeInstance("soldier_Head");
+                HandNodeInstance = ModelInstance.GetNodeInstance("soldier_RightHand");
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.D2) && ModelInstance.Animation != AnimationRunning)
             {
                 ModelInstance.SetAnimation(AnimationRunning, gameTime);
-                HeadNodeInstance = ModelInstance.GetNodeInstance("swat_Head");
-                HandNodeInstance = ModelInstance.GetNodeInstance("swat_RightHand");
+                HeadNodeInstance = ModelInstance.GetNodeInstance("soldier_Head");
+                HandNodeInstance = ModelInstance.GetNodeInstance("soldier_RightHand");
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.D3) && ModelInstance.Animation != AnimationWalk)
             {
                 ModelInstance.SetAnimation(AnimationWalk, gameTime);
-                HeadNodeInstance = ModelInstance.GetNodeInstance("swat_Head");
-                HandNodeInstance = ModelInstance.GetNodeInstance("swat_RightHand");
+                HeadNodeInstance = ModelInstance.GetNodeInstance("soldier_Head");
+                HandNodeInstance = ModelInstance.GetNodeInstance("soldier_RightHand");
             }
 
             
@@ -174,11 +164,11 @@ namespace DopaEngine
                 }
             }
             HeadNodeInstance.AdditionalTransform = Matrix.CreateRotationY(headYRotation);
-            ModelInstance.Transformation = Matrix.CreateRotationY(2.5f);
 
+            ModelInstance.Transformation = Matrix.CreateRotationY(2.5f);// Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds);
             ModelInstance.UpdateNodes(gameTime);
             ModelInstance.UpdateBones(gameTime);
-            RifleTransformation = Matrix.CreateScale(0.15f) * Matrix.CreateTranslation(10, 5, -4f) * Matrix.CreateRotationY(3.14f) * Matrix.CreateRotationX(3.14f / 2.0f) * ModelInstance.GetTransform(HandNodeInstance, gameTime) * ModelInstance.Transformation;
+            RifleTransformation = Matrix.CreateScale(0.15f) * Matrix.CreateTranslation(10, 5, -4f) * Matrix.CreateRotationY(3.14f) * Matrix.CreateRotationX(3.14f / 2f) * ModelInstance.GetTransform(HandNodeInstance, gameTime) * ModelInstance.Transformation;
 
             base.Update(gameTime);
         }

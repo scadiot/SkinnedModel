@@ -81,6 +81,13 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AssimpNet.4.1.0\build\AssimpNet.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(ProjectDir)Content\Rifle Idle.dae" "$(TargetDir)Content\Rifle Idle.dae"
+copy /Y "$(ProjectDir)Content\Rifle Run.dae" "$(TargetDir)Content\Rifle Run.dae"
+copy /Y "$(ProjectDir)Content\Rifle Walking.dae" "$(TargetDir)Content\Rifle Walking.dae"
+copy /Y "$(ProjectDir)Content\Soldier.fbx" "$(TargetDir)Content\Soldier.fbx"
+copy /Y "$(ProjectDir)Content\mp5.3DS" "$(TargetDir)Content\mp5.3DS"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
