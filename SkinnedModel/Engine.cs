@@ -28,8 +28,8 @@ namespace DopaEngine
 
         Model modelRifle;
 
-        SkinnedModelInstance.NodeInstance HeadNodeInstance { get; set; }
-        SkinnedModelInstance.NodeInstance HandNodeInstance { get; set; }
+        SkinnedModelInstance.BoneAnimationInstance HeadNodeInstance { get; set; }
+        SkinnedModelInstance.BoneAnimationInstance HandNodeInstance { get; set; }
         Matrix RifleTransformation;
 
         Texture2D Maintexture { get; set; }
@@ -166,7 +166,7 @@ namespace DopaEngine
             HeadNodeInstance.AdditionalTransform = Matrix.CreateRotationY(headYRotation);
 
             ModelInstance.Transformation = Matrix.CreateRotationY(2.5f);// Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds);
-            ModelInstance.UpdateNodes(gameTime);
+            ModelInstance.UpdateBoneAnimations(gameTime);
             ModelInstance.UpdateBones(gameTime);
             RifleTransformation = Matrix.CreateScale(0.15f) * Matrix.CreateTranslation(10, 5, -4f) * Matrix.CreateRotationY(3.14f) * Matrix.CreateRotationX(3.14f / 2f) * ModelInstance.GetTransform(HandNodeInstance, gameTime) * ModelInstance.Transformation;
 

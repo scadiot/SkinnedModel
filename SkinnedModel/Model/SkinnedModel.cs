@@ -62,6 +62,12 @@ namespace DopaEngine
             }
         }
 
+        struct BlendInfo
+        {
+            public Vector4 Weight;
+            public Vector4 BoneId;
+        }
+
         public SkinnedModel(GraphicsDevice graphicsDevice)
         {
             GraphicsDevice = graphicsDevice;
@@ -101,67 +107,33 @@ namespace DopaEngine
                 var c = aScene.Materials[aMesh.MaterialIndex].ColorDiffuse;
                 var color = new Color(new Vector4(c.R, c.G, c.B, c.A));
 
-                for (int i = 0; i < aMesh.FaceCount; i++)
+                for (int faceIndex = 0; faceIndex < aMesh.FaceCount; faceIndex++)
                 {
-                    int verticeIndice1 = aMesh.Faces[i].Indices[0];
-                    Vector3 verticePosition1 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice1]);
-
-                    int verticeIndice2 = aMesh.Faces[i].Indices[1];
-                    Vector3 verticePosition2 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice2]);
-
-                    int verticeIndice3 = aMesh.Faces[i].Indices[2];
-                    Vector3 verticePosition3 = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice3]);
-
-                    var direction = Vector3.Cross(verticePosition2 - verticePosition1, verticePosition3 - verticePosition1);
-                    var normal = Vector3.Normalize(direction);
-
-                    var uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice1]);
-                    var verticeUv1 = new Vector2(uv.X, uv.Y);
-
-                    uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice2]);
-                    var verticeUv2 = new Vector2(uv.X, uv.Y);
-
-                    uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice3]);
-                    var verticeUv3 = new Vector2(uv.X, uv.Y);
-
-                    var vertice1 = new MeshSkinnedVerticeInfo()
+                    for (int vertexNum = 0; vertexNum < 3; vertexNum++)
                     {
-                        Position = verticePosition1,
-                        Normal = normal,
-                        TextureCoordinate = verticeUv1,
-                        Color = color,
-                        MaterialIndex = aMesh.MaterialIndex,
-                        BoneID = GetBlendIndices(VerticeWeights, verticeIndice1),
-                        BoneWeight = GetBlendWeight(VerticeWeights, verticeIndice1)
-                    };
-                    indicesResult.Add(verticesResult.Count);
-                    verticesResult.Add(vertice1);
+                        int verticeIndice = aMesh.Faces[faceIndex].Indices[vertexNum];
+                        Vector3 verticePosition = AssimpHelper.VectorAssimpToXna(aMesh.Vertices[verticeIndice]);
+                        Vector3 verticeNormal = AssimpHelper.VectorAssimpToXna(aMesh.Normals[verticeIndice]);
 
-                    var vertice2 = new MeshSkinnedVerticeInfo()
-                    {
-                        Position = verticePosition2,
-                        Normal = normal,
-                        TextureCoordinate = verticeUv2,
-                        Color = color,
-                        MaterialIndex = aMesh.MaterialIndex,
-                        BoneID = GetBlendIndices(VerticeWeights, verticeIndice2),
-                        BoneWeight = GetBlendWeight(VerticeWeights, verticeIndice2)
-                    };
-                    indicesResult.Add(verticesResult.Count);
-                    verticesResult.Add(vertice2);
+                        var uv = AssimpHelper.VectorAssimpToXna(aMesh.TextureCoordinateChannels[0][verticeIndice]);
+                        var verticeUv = new Vector2(uv.X, uv.Y);
 
-                    var vertice3 = new MeshSkinnedVerticeInfo()
-                    {
-                        Position = verticePosition3,
-                        Normal = normal,
-                        TextureCoordinate = verticeUv3,
-                        Color = color,
-                        MaterialIndex = aMesh.MaterialIndex,
-                        BoneID = GetBlendIndices(VerticeWeights, verticeIndice3),
-                        BoneWeight = GetBlendWeight(VerticeWeights, verticeIndice3)
-                    };
-                    indicesResult.Add(verticesResult.Count);
-                    verticesResult.Add(vertice3);
+                        BlendInfo blendInfo = GetBlendInfo(VerticeWeights, verticeIndice);
+
+                        var vertice = new MeshSkinnedVerticeInfo()
+                        {
+                            Position = verticePosition,
+                            Normal = verticeNormal,
+                            TextureCoordinate = verticeUv,
+                            Color = color,
+                            MaterialIndex = aMesh.MaterialIndex,
+                            BoneID = blendInfo.BoneId,
+                            BoneWeight = blendInfo.Weight
+                        };
+
+                        indicesResult.Add(verticesResult.Count);
+                        verticesResult.Add(vertice);
+                    }
                 }
 
                 mesh.TextureFilePath = aScene.Materials[aMesh.MaterialIndex].TextureDiffuse.FilePath;
@@ -197,54 +169,36 @@ namespace DopaEngine
             return bone;
         }
 
-        Vector4 GetBlendWeight(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
+        BlendInfo GetBlendInfo(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
         {
             const uint BlendCount = 4;
-
-            var blendWeight = new float[BlendCount];
-            for (int j = 0; j < BlendCount; j++)
+        
+            var weight = new float[BlendCount];
+            var boneId = new float[BlendCount];
+        
+            for (int i = 0; i < BlendCount; i++)
             {
-                blendWeight[j] = 0;
+                weight[i] = 0f;
+                boneId[i] = 0f;
             }
-
+        
             if (VerticeWeights.ContainsKey(verticeIndex))
             {
                 var weightInfo = VerticeWeights[verticeIndex];
                 weightInfo = weightInfo.OrderByDescending(w => w.Weight).ToList();
                 var count = Math.Min(weightInfo.Count, 4);
-
-                for (int j = 0; j < count; j++)
+        
+                for (int i = 0; i < count; i++)
                 {
-                    blendWeight[j] = weightInfo[j].Weight;
+                    weight[i] = weightInfo[i].Weight;
+                    boneId[i] = (float)weightInfo[i].Bone.Index;
                 }
             }
-            var result = new Vector4(blendWeight[0], blendWeight[1], blendWeight[2], blendWeight[3]);
+        
+            BlendInfo result;
+            result.Weight = new Vector4(weight[0], weight[1], weight[2], weight[3]);
+            result.BoneId = new Vector4(boneId[0], boneId[1], boneId[2], boneId[3]);
             return result;
-        }
-
-        Vector4 GetBlendIndices(Dictionary<int, List<VerticeWeight>> VerticeWeights, int verticeIndex)
-        {
-            const uint BlendCount = 4;
-
-            var blendIndices = new float[BlendCount];
-            for (int j = 0; j < BlendCount; j++)
-            {
-                blendIndices[j] = 0;
-            }
-
-            if (VerticeWeights.ContainsKey(verticeIndex))
-            {
-                var weightInfo = VerticeWeights[verticeIndex];
-                weightInfo = weightInfo.OrderByDescending(w => w.Weight).ToList();
-                var count = Math.Min(weightInfo.Count, 4);
-
-                for (int j = 0; j < count; j++)
-                {
-                    blendIndices[j] = (float)weightInfo[j].Bone.Index;
-                }
-            }
-
-            return new Vector4(blendIndices[0], blendIndices[1], blendIndices[2], blendIndices[3]);
         }
     }
 }
