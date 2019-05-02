@@ -23,7 +23,7 @@ namespace DopaEngine
 
         public string FilePath { get; set; }
         public List<BoneAnimation> BoneAnimations { get; set; }
-        public BoneAnimation RootNode { get; set; }
+        public BoneAnimation RootBoneAnimation { get; set; }
 
         public void Load()
         {
@@ -32,10 +32,10 @@ namespace DopaEngine
             var importer = new Assimp.AssimpContext();
             var aScene = importer.ImportFile(FilePath, Assimp.PostProcessPreset.TargetRealTimeMaximumQuality);
 
-            RootNode = LoadNode(aScene, aScene.RootNode, null);
+            RootBoneAnimation = LoadBoneAnimation(aScene, aScene.RootNode, null);
         }
 
-        public BoneAnimation LoadNode(Assimp.Scene aScene, Assimp.Node aNode, BoneAnimation parent)
+        public BoneAnimation LoadBoneAnimation(Assimp.Scene aScene, Assimp.Node aNode, BoneAnimation parent)
         {
             var boneAnimation = new BoneAnimation()
             {
@@ -79,7 +79,7 @@ namespace DopaEngine
 
             foreach (var child in aNode.Children)
             {
-                boneAnimation.Children.Add(LoadNode(aScene, child, boneAnimation));
+                boneAnimation.Children.Add(LoadBoneAnimation(aScene, child, boneAnimation));
             }
             BoneAnimations.Add(boneAnimation);
             return boneAnimation;

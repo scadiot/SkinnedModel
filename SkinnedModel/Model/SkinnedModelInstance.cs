@@ -26,16 +26,16 @@ namespace DopaEngine
         public TimeSpan TimeAnimationChanged;
         public float SpeedTransitionSecond { get; set; } = 1.0f;
 
-        public struct NodeInstanceToBone
+        public struct BoneInstance
         {
-            public BoneAnimationInstance NodeInstance { get; set; }
+            public BoneAnimationInstance BoneAnimationInstance { get; set; }
             public SkinnedModel.Bone Bone { get; set; }
         }
 
         public class MeshInstance
         {
             public SkinnedModel.Mesh Mesh { get; set; }
-            public List<NodeInstanceToBone> BoneAnimationInstanceToBoneIndex { get; set; }
+            public List<BoneInstance> BoneInstances { get; set; }
             public Matrix[] BonesOffsets { get; set; }
         }
 
@@ -64,7 +64,7 @@ namespace DopaEngine
             {
                 MeshInstance meshInstance = new MeshInstance();
                 meshInstance.Mesh = skinnedMesh;
-                meshInstance.BoneAnimationInstanceToBoneIndex = new List<NodeInstanceToBone>();
+                meshInstance.BoneInstances = new List<BoneInstance>();
                 meshInstance.BonesOffsets = new Matrix[MaxBones];
                 for (int i = 0; i < meshInstance.BonesOffsets.Length; i++)
                 {
@@ -75,7 +75,7 @@ namespace DopaEngine
             }
         }
 
-        public Matrix GetNodeTransform(SkinnedModelAnimation.BoneAnimation boneAnimation, GameTime gt)
+        public Matrix GetBoneAnimationTransform(SkinnedModelAnimation.BoneAnimation boneAnimation, GameTime gt)
         {
             if (!boneAnimation.IsAnimate && boneAnimation.Parent != null)
             {
@@ -116,7 +116,7 @@ namespace DopaEngine
                 parentTransform = boneAnimationInstance.Parent.Transform;
             }
 
-            boneAnimationInstance.Transform = GetNodeTransform(boneAnimationInstance.BoneAnimation, gameTime) * boneAnimationInstance.AdditionalTransform * parentTransform;
+            boneAnimationInstance.Transform = GetBoneAnimationTransform(boneAnimationInstance.BoneAnimation, gameTime) * boneAnimationInstance.AdditionalTransform * parentTransform;
         }
 
         public void UpdateBoneAnimations(GameTime gameTime)
@@ -141,18 +141,18 @@ namespace DopaEngine
         {
             foreach (var meshInstance in MeshInstances)
             {
-                foreach (var boneAnimationInstanceToBone in meshInstance.BoneAnimationInstanceToBoneIndex)
+                foreach (var boneInstances in meshInstance.BoneInstances)
                 {
-                    Matrix transform = boneAnimationInstanceToBone.NodeInstance.Transform;
-                    if (boneAnimationInstanceToBone.NodeInstance.PreviousBoneAnimationInstance != null)
+                    Matrix transform = boneInstances.BoneAnimationInstance.Transform;
+                    if (boneInstances.BoneAnimationInstance.PreviousBoneAnimationInstance != null)
                     {
                         float transition = (float)(gameTime.TotalGameTime.TotalSeconds - TimeAnimationChanged.TotalSeconds);
                         if(transition < SpeedTransitionSecond)
                         {
-                            transform = Matrix.Lerp(boneAnimationInstanceToBone.NodeInstance.PreviousBoneAnimationInstance.Transform, boneAnimationInstanceToBone.NodeInstance.Transform, transition / SpeedTransitionSecond);
+                            transform = Matrix.Lerp(boneInstances.BoneAnimationInstance.PreviousBoneAnimationInstance.Transform, boneInstances.BoneAnimationInstance.Transform, transition / SpeedTransitionSecond);
                         }
                     }
-                    meshInstance.BonesOffsets[boneAnimationInstanceToBone.Bone.Index] = boneAnimationInstanceToBone.Bone.Offset * transform;
+                    meshInstance.BonesOffsets[boneInstances.Bone.Index] = boneInstances.Bone.Offset * transform;
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace DopaEngine
             UpdateBones(gameTime);
         }
 
-        public BoneAnimationInstance GetNodeInstance(string name)
+        public BoneAnimationInstance GetBoneAnimationInstance(string name)
         {
             return BoneAnimationInstances.FirstOrDefault(ni => ni.BoneAnimation.Name == name);
         }
@@ -213,13 +213,13 @@ namespace DopaEngine
 
             foreach(var meshInstance in MeshInstances)
             {
-                meshInstance.BoneAnimationInstanceToBoneIndex.Clear();
+                meshInstance.BoneInstances.Clear();
                 foreach(var bone in meshInstance.Mesh.Bones)
                 {
-                    var nodeInstanceToBoneIndex = new NodeInstanceToBone();
-                    nodeInstanceToBoneIndex.Bone = bone;
-                    nodeInstanceToBoneIndex.NodeInstance = BoneAnimationInstances.FirstOrDefault(ni => ni.BoneAnimation.Name == bone.Name);
-                    meshInstance.BoneAnimationInstanceToBoneIndex.Add(nodeInstanceToBoneIndex);
+                    var boneInstance = new BoneInstance();
+                    boneInstance.Bone = bone;
+                    boneInstance.BoneAnimationInstance = BoneAnimationInstances.FirstOrDefault(ni => ni.BoneAnimation.Name == bone.Name);
+                    meshInstance.BoneInstances.Add(boneInstance);
                 }
             }
         }
