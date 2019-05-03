@@ -9,7 +9,6 @@
 
 matrix World;
 matrix WorldViewProjection;
-float3 CameraPos;
 Texture2D Texture1;
 float3 SunOrientation;
 float4x4 gBonesOffsets[50];
@@ -28,7 +27,6 @@ struct VertexShaderInput
 	float4 Position : SV_POSITION;
 	float3 Normal : NORMAL0;
 	float2 Uv : TEXCOORD0;
-	float4 Color : COLOR0;
 	float4 blendIndices : BLENDINDICES; 
 	float4 blendWeights : BLENDWEIGHT;
 };
@@ -64,9 +62,8 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 	
 	output.Position = mul(skinnedPosition, WorldViewProjection);
-	output.Normal = mul(input.Normal, World).xyz;
+	output.Normal = mul(input.Normal, World);
 	output.Uv = input.Uv;
-	output.Color = input.Color;
 
 	return output;
 }

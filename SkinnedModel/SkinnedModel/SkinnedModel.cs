@@ -4,8 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DopaEngine
 {
@@ -32,7 +30,7 @@ namespace DopaEngine
 
         public class Mesh
         {
-            public String Name { get; set; }
+            public string Name { get; set; }
 
             public Vector3 OffsetPosition { get; set; }
             public List<Bone> Bones { get; set; }
@@ -51,14 +49,12 @@ namespace DopaEngine
             public Vector3 Position { get; set; }
             public Vector3 Normal { get; set; }
             public Vector2 TextureCoordinate { get; set; }
-            public Color Color { get; set; }
-            public int MaterialIndex { get; set; }
             public Vector4 BoneID { get; set; }
             public Vector4 BoneWeight { get; set; }
 
             public SkinnedModelVertex ToVertexPositionNormalTextureBones()
             {
-                return new SkinnedModelVertex(Position, Normal, TextureCoordinate, Color, BoneID, BoneWeight);
+                return new SkinnedModelVertex(Position, Normal, TextureCoordinate, BoneID, BoneWeight);
             }
         }
 
@@ -68,9 +64,9 @@ namespace DopaEngine
             public Vector4 BoneId;
         }
 
-        public SkinnedModel(GraphicsDevice graphicsDevice)
+        public SkinnedModel()
         {
-            GraphicsDevice = graphicsDevice;
+
         }
 
         public void Initialize()
@@ -105,7 +101,6 @@ namespace DopaEngine
                 }
 
                 var c = aScene.Materials[aMesh.MaterialIndex].ColorDiffuse;
-                var color = new Color(new Vector4(c.R, c.G, c.B, c.A));
 
                 for (int faceIndex = 0; faceIndex < aMesh.FaceCount; faceIndex++)
                 {
@@ -125,8 +120,6 @@ namespace DopaEngine
                             Position = verticePosition,
                             Normal = verticeNormal,
                             TextureCoordinate = verticeUv,
-                            Color = color,
-                            MaterialIndex = aMesh.MaterialIndex,
                             BoneID = blendInfo.BoneId,
                             BoneWeight = blendInfo.Weight
                         };

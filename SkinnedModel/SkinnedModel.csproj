@@ -43,14 +43,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssimpHelper.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="Model\AssimpHelper.cs" />
-    <Compile Include="Model\BasicModel.cs" />
-    <Compile Include="Model\SkinnedModelAnimation.cs" />
-    <Compile Include="Model\SkinnedModel.cs" />
-    <Compile Include="Model\SkinnedModelInstance.cs" />
-    <Compile Include="Model\VertexPositionNormalTexture.cs" />
-    <Compile Include="Model\SkinnedModelVertex.cs" />
+    <Compile Include="SimpleModel\SimpleModel.cs" />
+    <Compile Include="SimpleModel\SimpleModelVertex.cs" />
+    <Compile Include="SkinnedModel\SkinnedModelAnimation.cs" />
+    <Compile Include="SkinnedModel\SkinnedModel.cs" />
+    <Compile Include="SkinnedModel\SkinnedModelInstance.cs" />
+    <Compile Include="SkinnedModel\SkinnedModelVertex.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
